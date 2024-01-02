@@ -155,6 +155,29 @@ func (u *User) Get(c echo.Context) error {
 	return c.JSON(http.StatusOK, users)
 }
 
+func (u *User) GetByKeyword(c echo.Context) error {
+	var keyPtr *string
+	if key := c.QueryParam("keyword"); key != "" {
+		keyPtr = &key
+	}
+
+	users := u.repo.Get(c.Request().Context(), userrepo.GetCommand{
+		ID:       nil,
+		Username: nil,
+		Phone:    nil,
+		Keyword:  keyPtr,
+	})
+	if len(users) == 0 {
+		return echo.ErrNotFound
+	}
+
+	for i := range users {
+		users[i].Password = ""
+	}
+
+	return c.JSON(http.StatusOK, users)
+}
+
 func (u *User) Delete(c echo.Context) error {
 	var idPtr *uint64
 	if id, err := strconv.ParseUint(c.Param("id"), 10, 64); err == nil {
@@ -355,6 +378,7 @@ func (u *User) Register(g *echo.Group) {
 	g.POST("/register", u.Create)
 	g.POST("/login", u.Login)
 	g.GET("/users/:id", u.Get)
+	g.GET("/users", u.GetByKeyword)
 	g.PATCH("/users/:id", u.Update)
 	g.DELETE("/users/:id", u.Delete)
 }

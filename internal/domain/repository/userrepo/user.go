@@ -15,6 +15,7 @@ type GetCommand struct {
 	ID       *uint64
 	Username *string
 	Phone    *string
+	Keyword  *string
 }
 
 type Repository interface {

@@ -4,6 +4,8 @@ import time
 
 base_url = "http://127.0.0.1:8000/api"
 
+
+########################### register and update users ###########################
 print("POST request to /register")
 url = base_url+"/register"
 headers = {'Content-Type': 'application/json'}
@@ -60,7 +62,13 @@ data = {"username":"user1","password":"password1", "phone":"0123456789", "firstn
 response = requests.patch(url, headers=headers, data=json.dumps(data), cookies=cookies2)
 print(response.text)
 
+print("GET request to /users?keyword=user")
+url = base_url+f'/users?keyword=user'
+response = requests.get(url, data=json.dumps(data))
+print(response.text)
 
+
+########################### Chat tests ###########################
 print("POST request to /chats with user1")
 url = base_url+"/chats"
 headers = {'Content-Type': 'application/json'}
@@ -85,7 +93,7 @@ url = base_url+f"/chats"
 response = requests.get(url, data=json.dumps(data), cookies=cookies2)
 print(response.text)
 
-
+########################### Delete users ###########################
 print("DELETE request to user2 without auth")
 url = base_url+f"/users/{id2}"
 response = requests.delete(url)

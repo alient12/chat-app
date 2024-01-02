@@ -4,6 +4,7 @@ import (
 	"chatapp/internal/domain/model"
 	"chatapp/internal/domain/repository/userrepo"
 	"context"
+	"strings"
 	"sync"
 
 	"github.com/labstack/echo/v4"
@@ -65,6 +66,14 @@ func (r *Repository) Get(_ context.Context, cmd userrepo.GetCommand) []model.Use
 
 		if cmd.Phone != nil {
 			if users[i].Phone != *cmd.Phone {
+				users = append(users[:i], users[i+1:]...)
+				i--
+				continue
+			}
+		}
+
+		if cmd.Keyword != nil {
+			if !strings.Contains(users[i].Username, *cmd.Keyword) {
 				users = append(users[:i], users[i+1:]...)
 				i--
 				continue
