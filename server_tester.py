@@ -60,6 +60,32 @@ data = {"username":"user1","password":"password1", "phone":"0123456789", "firstn
 response = requests.patch(url, headers=headers, data=json.dumps(data), cookies=cookies2)
 print(response.text)
 
+
+print("POST request to /chats with user1")
+url = base_url+"/chats"
+headers = {'Content-Type': 'application/json'}
+data = {"people":[id, id2]}
+response = requests.post(url, headers=headers, data=json.dumps(data), cookies=cookies)
+print(response.text)
+
+print("GET request to /chats")
+url = base_url+f"/chats"
+response = requests.get(url, data=json.dumps(data), cookies=cookies)
+print(response.text)
+
+print("POST request to /chats with user2")
+url = base_url+"/chats"
+headers = {'Content-Type': 'application/json'}
+data = {"people":[id2, id]}
+response = requests.post(url, headers=headers, data=json.dumps(data), cookies=cookies2)
+print(response.text)
+
+print("GET request to /chats")
+url = base_url+f"/chats"
+response = requests.get(url, data=json.dumps(data), cookies=cookies2)
+print(response.text)
+
+
 print("DELETE request to user2 without auth")
 url = base_url+f"/users/{id2}"
 response = requests.delete(url)

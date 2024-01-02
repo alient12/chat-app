@@ -3,10 +3,16 @@ package chatrepo
 import (
 	"chatapp/internal/domain/model"
 	"context"
+	"errors"
 )
 
+var ErrChatIDDuplicate = errors.New("duplicated chat id")
+var ErrIDNotFound = errors.New("user id not found")
+var ErrDualChatDuplicate = errors.New("duplicated dual chat")
+
 type GetCommand struct {
-	ID *uint64
+	ID     *uint64
+	UserID *[]uint64
 }
 
 type Repository interface {

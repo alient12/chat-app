@@ -1,4 +1,4 @@
-package memory
+package usermem
 
 import (
 	"chatapp/internal/domain/model"

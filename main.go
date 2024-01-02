@@ -1,9 +1,9 @@
 package main
 
 import (
-	"chatapp/internal/domain/repository/userrepo"
 	"chatapp/internal/infra/http/handler"
-	"chatapp/internal/infra/repository/memory"
+	"chatapp/internal/infra/repository/chatmem"
+	"chatapp/internal/infra/repository/usermem"
 	"log"
 
 	"github.com/joho/godotenv"
@@ -18,10 +18,14 @@ func main() {
 
 	app := echo.New()
 
-	var repo userrepo.Repository = memory.New()
+	userRepo := usermem.New()
+	chatRepo := chatmem.New()
 
-	h := handler.NewUser(repo)
-	h.Register(app.Group("/api"))
+	userHand := handler.NewUser(userRepo)
+	userHand.Register(app.Group("/api"))
+
+	chatHand := handler.NewChat(chatRepo, userRepo)
+	chatHand.Register(app.Group("/api"))
 
 	if err := app.Start(":8000"); err != nil {
 		log.Fatalf("server failed to start %v", err)

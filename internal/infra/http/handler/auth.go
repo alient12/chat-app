@@ -60,12 +60,12 @@ func GenJWT(c echo.Context, id uint64, un string) error {
 	}
 
 	c.SetCookie(&http.Cookie{
-		Name:     "token",
-		Value:    tokenString,
-		Expires:  expirationTime,
-		SameSite: 1,
-		Secure:   true,
-		HttpOnly: true,
+		Name:    "token",
+		Value:   tokenString,
+		Expires: expirationTime,
+		// SameSite: 1,
+		// Secure:   true,
+		// HttpOnly: true,
 	})
 	return nil
 }
@@ -109,12 +109,12 @@ func RefJWT(c echo.Context) error {
 	}
 
 	c.SetCookie(&http.Cookie{
-		Name:     "token",
-		Value:    tokenString,
-		Expires:  expirationTime,
-		SameSite: 1,
-		Secure:   true,
-		HttpOnly: true,
+		Name:    "token",
+		Value:   tokenString,
+		Expires: expirationTime,
+		// SameSite: 1,
+		// Secure:   true,
+		// HttpOnly: true,
 	})
 	return nil
 }
