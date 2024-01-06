@@ -6,8 +6,11 @@ import (
 )
 
 type GetCommand struct {
-	ID     *uint64
-	ChatID *uint64
+	ID          *uint64
+	ChatID      *uint64
+	Sender      *uint64
+	Keyword     *string
+	ContentType *model.MessageContentType
 }
 
 type Repository interface {

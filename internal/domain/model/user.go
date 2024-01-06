@@ -10,3 +10,12 @@ type User struct {
 	Image     string `json:"image,omitempty"`
 	Bio       string `json:"bio,omitempty"`
 }
+
+type IDType int
+
+const (
+	UserIDType IDType = iota
+	GroupIDType
+	ChannelIDType
+	BotIDType
+)

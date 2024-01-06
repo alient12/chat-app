@@ -22,7 +22,7 @@ type User struct {
 }
 
 var (
-	user_count uint32
+	user_count uint64
 	mu         sync.Mutex
 )
 
@@ -42,9 +42,14 @@ func GenerateHash(p string, s string) string {
 	return hashString
 }
 
-func GenerateID() uint64 {
-	id := (uint64(user_count) << 32) | uint64(rand.Uint32())
+func GenerateID(t model.IDType) uint64 {
+	id := (user_count << 29) | (uint64(rand.Uint32() >> 3))
+	id = id | (uint64(t) << 61)
 	return id
+}
+
+func GetIDType(id uint64) model.IDType {
+	return model.IDType(id >> 61)
 }
 
 func (u *User) Create(c echo.Context) error {
@@ -59,7 +64,7 @@ func (u *User) Create(c echo.Context) error {
 		return echo.ErrBadRequest
 	}
 
-	id := GenerateID()
+	id := GenerateID(model.UserIDType)
 	salt := fmt.Sprintf("%06d ", id)[2:5]
 	hash := GenerateHash(req.Password, salt)
 

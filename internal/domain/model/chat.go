@@ -7,3 +7,13 @@ type Chat struct {
 	People    []uint64
 	CreatedAt time.Time
 }
+
+type ChatIDType int
+
+const (
+	PrivateChatIDType ChatIDType = iota
+	GroupChatIDType
+	ChannelChatIDType
+	BotChatIDType
+	SecretChatIDType
+)

@@ -30,20 +30,17 @@ func NewChat(repo chatrepo.Repository, urepo userrepo.Repository) *Chat {
 }
 
 var (
-	chat_count uint32
+	chat_count uint64
 )
 
-func GenerateChatID(opcode uint64) uint64 {
-	// opcode = 1 --> chat
-	// opcode = 2 --> group
-	// opcode = 3 --> channel
-	id := (uint64(chat_count) << 30) | (uint64(rand.Uint32() >> 2))
-	id = id | (opcode << 62)
+func GenerateChatID(t model.ChatIDType) uint64 {
+	id := (chat_count << 29) | (uint64(rand.Uint32() >> 3))
+	id = id | (uint64(t) << 61)
 	return id
 }
 
-func GetChatIDOpcode(id uint64) uint64 {
-	return (id >> 62)
+func GetChatIDType(id uint64) model.ChatIDType {
+	return model.ChatIDType(id >> 61)
 }
 
 func (ch *Chat) Create(c echo.Context) error {
