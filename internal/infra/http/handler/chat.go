@@ -34,7 +34,10 @@ var (
 )
 
 func GenerateChatID(t model.ChatIDType) uint64 {
-	id := (chat_count << 29) | (uint64(rand.Uint32() >> 3))
+	// mask: (3 bits 0) + (61 bits 1) = 000111111111...
+	// id: (3 bits t) + (32 bits chat_count) + (29 bits random number)
+	mask := uint64(1<<61 - 1)
+	id := (chat_count<<29)&mask | (uint64(rand.Uint32() >> 3))
 	id = id | (uint64(t) << 61)
 	return id
 }
@@ -92,7 +95,7 @@ func (ch *Chat) Create(c echo.Context) error {
 		return echo.ErrBadRequest
 	}
 
-	id := GenerateChatID(1)
+	id := GenerateChatID(model.PrivateChatIDType)
 	if err := ch.repo.Add(c.Request().Context(), model.Chat{
 		ID:        id,
 		People:    people,

@@ -43,7 +43,10 @@ func GenerateHash(p string, s string) string {
 }
 
 func GenerateID(t model.IDType) uint64 {
-	id := (user_count << 29) | (uint64(rand.Uint32() >> 3))
+	// mask: (3 bits 0) + (61 bits 1) = 000111111111...
+	// id: (3 bits t) + (32 bits user_count) + (29 bits random number)
+	mask := uint64(1<<61 - 1)
+	id := (user_count<<29)&mask | (uint64(rand.Uint32() >> 3))
 	id = id | (uint64(t) << 61)
 	return id
 }
