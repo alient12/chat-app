@@ -2,10 +2,10 @@ package main
 
 import (
 	"chatapp/internal/infra/http/handler"
-	"chatapp/internal/infra/repository/chatmem"
-	"chatapp/internal/infra/repository/contactmem"
-	"chatapp/internal/infra/repository/messagemem"
-	"chatapp/internal/infra/repository/usermem"
+	"chatapp/internal/infra/repository/chatdb"
+	"chatapp/internal/infra/repository/contactdb"
+	"chatapp/internal/infra/repository/messagedb"
+	"chatapp/internal/infra/repository/userdb"
 	"chatapp/internal/infra/websocket"
 	"log"
 
@@ -21,10 +21,22 @@ func main() {
 
 	app := echo.New()
 
-	userRepo := usermem.New()
-	chatRepo := chatmem.New()
-	contactRepo := contactmem.New()
-	messageRepo := messagemem.New()
+	userRepo, err := userdb.New()
+	if err != nil {
+		log.Fatalf("cannot load users datavase")
+	}
+	chatRepo, err := chatdb.New()
+	if err != nil {
+		log.Fatalf("cannot load chats datavase")
+	}
+	contactRepo, err := contactdb.New()
+	if err != nil {
+		log.Fatalf("cannot load contacts datavase")
+	}
+	messageRepo, err := messagedb.New()
+	if err != nil {
+		log.Fatalf("cannot load messages datavase")
+	}
 
 	userHand := handler.NewUser(userRepo)
 	userHand.Register(app.Group("/api"))
