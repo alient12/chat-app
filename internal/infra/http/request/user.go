@@ -13,7 +13,7 @@ type UserCreate struct {
 	Firstname string `json:"firstname,omitempty" validate:"required,alpha"`
 	Lastname  string `json:"lastname,omitempty" validate:"required,alpha"`
 	Image     string `json:"image,omitempty"`
-	Bio       string `json:"bio,omitempty"`
+	Bio       string `json:"bio,omitempty" validate:"max=100"`
 }
 
 func (uc UserCreate) Validate() error {

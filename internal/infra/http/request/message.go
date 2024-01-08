@@ -10,7 +10,7 @@ import (
 type MessageCreate struct {
 	ChatID      uint64                   `json:"chatid,omitempty" validate:"required"`
 	Receiver    uint64                   `json:"receiver,omitempty"`
-	Content     string                   `json:"content,omitempty" validate:"required"`
+	Content     string                   `json:"content,omitempty" validate:"required,max=300"`
 	ContentType model.MessageContentType `json:"contenttype,omitempty"`
 }
 
