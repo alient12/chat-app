@@ -15,6 +15,6 @@ type GetCommand struct {
 
 type Repository interface {
 	Add(ctx context.Context, m model.Message) error
-	// Delete(ctx context.Context, chid uint64, mid uint64) error
-	// Get(ctx context.Context, cmd GetCommand) []model.Message
+	Delete(ctx context.Context, id uint64) error
+	Get(ctx context.Context, cmd GetCommand) []model.Message
 }

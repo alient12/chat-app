@@ -200,6 +200,6 @@ func (ch *Chat) Delete(c echo.Context) error {
 func (ch *Chat) Register(g *echo.Group) {
 	g.POST("/chats", ch.Create)
 	g.GET("/chats", ch.Get)
-	g.GET("/chats/:id", ch.GetByID)
+	// g.GET("/chats/:id", ch.GetByID)
 	g.DELETE("/chats/:id", ch.Delete)
 }

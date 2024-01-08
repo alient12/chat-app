@@ -36,6 +36,7 @@ func main() {
 	contactHand.Register(app.Group("/api"))
 
 	messageHand := handler.NewMessage(messageRepo, userRepo, chatRepo)
+	messageHand.Register(app.Group("/api"))
 
 	WSHand := websocket.NewWebSocketConnection(messageHand)
 	WSHand.Register(app.Group("/api"))

@@ -77,8 +77,23 @@ async def handle_connection(user1, user2, cookies, delay, initial_delay=0):
             receive_message(user1, ws)
         )
 
+async def get_chat(chat_id, cookies, delay, initial_delay=0):
+    await asyncio.sleep(initial_delay)
+
+    while True:
+        # Wait for the specified delay before sending the next message
+        await asyncio.sleep(delay)
+
+        print(f"GET request to /chats/{chat_id}")
+        
+        url = base_url+f"/chats/{chat_id}"
+        response = requests.get(url, data=json.dumps(data), cookies=cookies)
+                
+        print(response.text)
+
 # Run the handle_connection function for both users concurrently with different delays
 asyncio.get_event_loop().run_until_complete(asyncio.gather(
     handle_connection(id1, id2, cookies1, 2, 1),
-    handle_connection(id2, id1, cookies2, 2)
+    handle_connection(id2, id1, cookies2, 2),
+    get_chat(chat_id, cookies1, 5)
 ))
