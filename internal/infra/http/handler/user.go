@@ -80,8 +80,7 @@ func (u *User) Create(c echo.Context) error {
 		Phone:    phPtr,
 	})
 	if len(users) != 0 {
-		// return userrepo.ErrPhoneDuplicate
-		return echo.ErrBadRequest
+		return userrepo.ErrPhoneDuplicate
 	}
 
 	users = u.repo.Get(c.Request().Context(), userrepo.GetCommand{
@@ -90,8 +89,7 @@ func (u *User) Create(c echo.Context) error {
 		Phone:    nil,
 	})
 	if len(users) != 0 {
-		// return userrepo.ErrUsernameDuplicate
-		return echo.ErrBadRequest
+		return userrepo.ErrUsernameDuplicate
 	}
 
 	if err := u.repo.Add(c.Request().Context(), model.User{
@@ -107,12 +105,6 @@ func (u *User) Create(c echo.Context) error {
 		if errors.Is(err, userrepo.ErrUserIDDuplicate) {
 			log.Print("duplicated id")
 			return echo.ErrInternalServerError
-		} else if errors.Is(err, userrepo.ErrPhoneDuplicate) {
-			log.Print("duplicated phone")
-			return echo.ErrBadRequest
-		} else if errors.Is(err, userrepo.ErrUsernameDuplicate) {
-			log.Print("duplicte username")
-			return echo.ErrBadRequest
 		} else if errors.Is(err, userrepo.ErrImageSrcDuplicate) {
 			log.Print("duplicte image source")
 			return echo.ErrBadRequest
@@ -128,7 +120,12 @@ func (u *User) Create(c echo.Context) error {
 		return echo.ErrInternalServerError
 	}
 
-	return c.JSON(http.StatusCreated, id)
+	id_username := struct {
+		ID       uint64
+		Username string
+	}{ID: id, Username: req.Username}
+
+	return c.JSON(http.StatusOK, id_username)
 }
 
 func (u *User) Get(c echo.Context) error {
@@ -379,7 +376,12 @@ func (u *User) Login(c echo.Context) error {
 		return echo.ErrInternalServerError
 	}
 
-	return nil
+	id_username := struct {
+		ID       uint64
+		Username string
+	}{ID: user.ID, Username: user.Username}
+
+	return c.JSON(http.StatusOK, id_username)
 }
 
 func (u *User) Register(g *echo.Group) {

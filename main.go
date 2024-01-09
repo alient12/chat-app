@@ -11,6 +11,7 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 func main() {
@@ -20,6 +21,7 @@ func main() {
 	}
 
 	app := echo.New()
+	app.Use(middleware.CORS())
 
 	userRepo, err := userdb.New()
 	if err != nil {
