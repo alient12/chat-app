@@ -21,7 +21,11 @@ func main() {
 	}
 
 	app := echo.New()
-	app.Use(middleware.CORS())
+	// app.Use(middleware.CORS())
+	app.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"http://localhost:3000"},
+		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
+	}))
 
 	userRepo, err := userdb.New()
 	if err != nil {

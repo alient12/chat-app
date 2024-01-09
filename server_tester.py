@@ -17,7 +17,7 @@ cookies = response.cookies
 print(cookies.get_dict)
 
 print("GET request to /users/id")
-id = int(response.text)
+id = int(json.loads(response.text)["ID"])
 url = base_url+f"/users/{id}"
 response = requests.get(url, data=json.dumps(data))
 print(response.text)
@@ -53,7 +53,7 @@ data = {"username":"user2","password":"password2", "phone":"0123456788", "firstn
 response = requests.post(url, headers=headers, data=json.dumps(data))
 print(response.text)
 cookies2 = response.cookies
-id2 = int(response.text)
+id2 = int(json.loads(response.text)["ID"])
 print(cookies.get_dict)
 
 print("PATCH request to user1 with auth user2")
