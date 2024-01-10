@@ -65,4 +65,7 @@ func main() {
 	if err := app.Start(":8000"); err != nil {
 		log.Fatalf("server failed to start %v", err)
 	}
+	// if err := app.StartTLS(":8000", "localhost.crt", "localhost.key"); err != nil {
+	// 	log.Fatalf("server failed to start %v", err)
+	// }
 }
