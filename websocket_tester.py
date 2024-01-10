@@ -24,7 +24,7 @@ print(data)
 response = requests.post(url, headers=headers, data=json.dumps(data))
 print(response.text)
 cookies1 = response.cookies
-id1 = int(response.text)
+id1 = int(json.loads(response.text)["ID"])
 
 # Create the second user
 fullname2 = gen.name()
@@ -35,7 +35,7 @@ print(data)
 response = requests.post(url, headers=headers, data=json.dumps(data))
 print(response.text)
 cookies2 = response.cookies
-id2 = int(response.text)
+id2 = int(json.loads(response.text)["ID"])
 
 # Create a chat between the two users
 url = base_url+"/chats"
