@@ -45,6 +45,8 @@ func GenerateFileID() uint64 {
 func (f *File) Create(c echo.Context) error {
 	var chatIDPtr, idPtr *uint64
 	var chatIDs []uint64
+	var isProfileContent bool = true
+	var dir string
 
 	// check auth
 	if ckID, _, err := CheckJWT(c); err != nil {
@@ -74,6 +76,7 @@ func (f *File) Create(c echo.Context) error {
 			chatIDs = append(chatIDs, *chatIDPtr)
 		}
 
+		isProfileContent = false
 	}
 
 	ufile, err := c.FormFile("file")
@@ -103,7 +106,12 @@ func (f *File) Create(c echo.Context) error {
 	contentType := http.DetectContentType(buffer)
 
 	// Destination
-	dir := filepath.Join("files", fmt.Sprint(*idPtr))
+	if isProfileContent {
+		dir = filepath.Join("files", "profiles")
+	} else {
+		dir = filepath.Join("files", "chats")
+	}
+	dir = filepath.Join(dir, fmt.Sprint(*idPtr))
 	dstPath := filepath.Join(dir, ufile.Filename)
 
 	// make sure the path exists
@@ -126,14 +134,15 @@ func (f *File) Create(c echo.Context) error {
 	id := GenerateFileID()
 
 	file := model.File{
-		ID:          id,
-		UserID:      *idPtr,
-		FileName:    ufile.Filename,
-		Size:        ufile.Size,
-		ContentType: contentType,
-		FilePath:    dstPath,
-		ChatIDs:     chatIDs,
-		CreatedAt:   time.Now(),
+		ID:               id,
+		UserID:           *idPtr,
+		FileName:         ufile.Filename,
+		Size:             ufile.Size,
+		ContentType:      contentType,
+		FilePath:         dstPath,
+		ChatIDs:          chatIDs,
+		IsProfileContent: isProfileContent,
+		CreatedAt:        time.Now(),
 	}
 
 	util.AddMetadata(&file)
@@ -170,17 +179,21 @@ func (f *File) Get(c echo.Context) error {
 	})[0]
 
 	alowedToDownlaod := false
-	// get list of chats that have access to file
-	for _, chatid := range file.ChatIDs {
-		chat := f.chrepo.Get(c.Request().Context(), chatrepo.GetCommand{
-			ID:     &chatid,
-			UserID: nil,
-		})[0]
+	if file.IsProfileContent {
+		alowedToDownlaod = true
+	} else {
+		// get list of chats that have access to file
+		for _, chatid := range file.ChatIDs {
+			chat := f.chrepo.Get(c.Request().Context(), chatrepo.GetCommand{
+				ID:     &chatid,
+				UserID: nil,
+			})[0]
 
-		// check if user has access to the chat to download the file
-		if util.InSlice(chat.People, *idPtr) {
-			alowedToDownlaod = true
-			break
+			// check if user has access to the chat to download the file
+			if util.InSlice(chat.People, *idPtr) {
+				alowedToDownlaod = true
+				break
+			}
 		}
 	}
 
@@ -261,8 +274,51 @@ func (f *File) Delete(c echo.Context) error {
 	return c.JSON(http.StatusOK, *idPtr)
 }
 
+func (f *File) DeleteProfileContent(c echo.Context) error {
+	var fileIDPtr, idPtr *uint64
+
+	if id, err := strconv.ParseUint(c.Param("id"), 10, 64); err == nil {
+		fileIDPtr = &id
+	} else {
+		return echo.ErrBadRequest
+	}
+
+	// check auth
+	if ckID, _, err := CheckJWT(c); err != nil {
+		return err
+	} else {
+		idPtr = &ckID
+	}
+
+	file := f.repo.Get(c.Request().Context(), filerepo.GetCommand{
+		ID:          fileIDPtr,
+		UserID:      nil,
+		FileName:    nil,
+		ContentType: nil,
+		ChatID:      nil,
+	})[0]
+
+	// check if user has access
+	if file.UserID == *idPtr && file.IsProfileContent {
+		// Delete file from server
+		err := os.Remove(file.FilePath)
+		if err != nil {
+			log.Fatal(err)
+		}
+		// Delete File model database
+		if err := f.repo.Delete(c.Request().Context(), *fileIDPtr); err != nil {
+			return err
+		}
+	} else {
+		return echo.ErrUnauthorized
+	}
+
+	return c.JSON(http.StatusOK, *idPtr)
+}
+
 func (f *File) Register(g *echo.Group) {
 	g.POST("/files/upload/:chatid", f.Create)
 	g.GET("/files/download/:id", f.Get)
-	g.DELETE("/files/:chatid/:id", f.Delete)
+	g.DELETE("/files/chats/:chatid/:id", f.Delete)
+	g.DELETE("/files/:id", f.DeleteProfileContent)
 }

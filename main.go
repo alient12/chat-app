@@ -4,7 +4,7 @@ import (
 	"chatapp/internal/infra/http/handler"
 	"chatapp/internal/infra/repository/chatdb"
 	"chatapp/internal/infra/repository/contactdb"
-	"chatapp/internal/infra/repository/filemem"
+	"chatapp/internal/infra/repository/filedb"
 	"chatapp/internal/infra/repository/messagedb"
 	"chatapp/internal/infra/repository/userdb"
 	"chatapp/internal/infra/websocket"
@@ -44,7 +44,10 @@ func main() {
 	if err != nil {
 		log.Fatalf("cannot load messages datavase")
 	}
-	fileRepo := filemem.New()
+	fileRepo, err := filedb.New()
+	if err != nil {
+		log.Fatalf("cannot load messages datavase")
+	}
 
 	userHand := handler.NewUser(userRepo)
 	userHand.Register(app.Group("/api"))
