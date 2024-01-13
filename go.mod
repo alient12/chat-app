@@ -3,15 +3,20 @@ module chatapp
 go 1.21.1
 
 require (
+	github.com/dhowden/tag v0.0.0-20230630033851-978a0926ee25
 	github.com/go-playground/validator/v10 v10.16.0
 	github.com/golang-jwt/jwt/v5 v5.2.0
 	github.com/gorilla/websocket v1.5.1
 	github.com/joho/godotenv v1.5.1
 	github.com/labstack/echo/v4 v4.11.4
+	github.com/pillash/mp4util v0.0.0-20150601005705-98601ecf290a
+	github.com/rwcarlsen/goexif v0.0.0-20190401172101-9e8deecbddbd
+	go.mongodb.org/mongo-driver v1.13.1
 	golang.org/x/crypto v0.17.0
 )
 
 require (
+	github.com/AlexEidt/Vidio v1.5.1 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.2 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
@@ -29,7 +34,6 @@ require (
 	github.com/xdg-go/scram v1.1.2 // indirect
 	github.com/xdg-go/stringprep v1.0.4 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20181117223130-1be2e3e5546d // indirect
-	go.mongodb.org/mongo-driver v1.13.1 // indirect
 	golang.org/x/net v0.19.0 // indirect
 	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4 // indirect
 	golang.org/x/sys v0.15.0 // indirect

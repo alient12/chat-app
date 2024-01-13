@@ -10,6 +10,6 @@ type File struct {
 	ContentType string
 	FilePath    string
 	ChatIDs     []uint64
-	ExtraInfo   string
+	Metadata    map[string]string
 	CreatedAt   time.Time
 }

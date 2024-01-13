@@ -50,9 +50,7 @@ func (f *File) Create(c echo.Context) error {
 	if ckID, _, err := CheckJWT(c); err != nil {
 		return err
 	} else {
-		if ckID != *idPtr {
-			return echo.ErrForbidden
-		}
+		idPtr = &ckID
 	}
 
 	// check if user is uploading file for a chat
@@ -95,12 +93,25 @@ func (f *File) Create(c echo.Context) error {
 		return err
 	}
 
+	// Seek to the beginning of the file
+	_, err = src.Seek(0, io.SeekStart)
+	if err != nil {
+		// handle error
+	}
+
 	// Use these bytes to detect the content type
 	contentType := http.DetectContentType(buffer)
 
 	// Destination
 	dir := filepath.Join("files", fmt.Sprint(*idPtr))
 	dstPath := filepath.Join(dir, ufile.Filename)
+
+	// make sure the path exists
+	err = os.MkdirAll(dir, os.ModePerm)
+	if err != nil {
+		return err
+	}
+
 	dst, err := os.Create(dstPath)
 	if err != nil {
 		return err
@@ -124,6 +135,8 @@ func (f *File) Create(c echo.Context) error {
 		ChatIDs:     chatIDs,
 		CreatedAt:   time.Now(),
 	}
+
+	util.AddMetadata(&file)
 
 	if err := f.repo.Add(c.Request().Context(), file); err != nil {
 		return err
@@ -153,6 +166,7 @@ func (f *File) Get(c echo.Context) error {
 		FileName:    nil,
 		ContentType: nil,
 		ChatID:      nil,
+		Keyword:     nil,
 	})[0]
 
 	alowedToDownlaod := false
@@ -247,7 +261,7 @@ func (f *File) Delete(c echo.Context) error {
 	return c.JSON(http.StatusOK, *idPtr)
 }
 
-func (f *File) Register(g echo.Group) {
+func (f *File) Register(g *echo.Group) {
 	g.POST("/files/upload/:chatid", f.Create)
 	g.GET("/files/download/:id", f.Get)
 	g.DELETE("/files/:chatid/:id", f.Delete)
