@@ -145,7 +145,9 @@ func (f *File) Create(c echo.Context) error {
 		CreatedAt:        time.Now(),
 	}
 
-	util.AddMetadata(&file)
+	if err := util.AddMetadata(&file); err != nil {
+		log.Print(err)
+	}
 
 	if err := f.repo.Add(c.Request().Context(), file); err != nil {
 		return err
