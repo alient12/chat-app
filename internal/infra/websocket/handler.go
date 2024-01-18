@@ -33,10 +33,21 @@ func (wsc *WebSocketConnection) WSHandler(c echo.Context) error {
 	var uid uint64
 
 	// check auth
-	if ckID, _, err := handler.CheckJWT(c); err != nil {
-		return err
+	token := c.QueryParam("token")
+	if token != "" {
+		// check auth by query params
+		if ckID, _, err := handler.CheckJWTLocalStorage(token); err != nil {
+			return err
+		} else {
+			uid = ckID
+		}
 	} else {
-		uid = ckID
+		// check auth by cookies
+		if ckID, _, err := handler.CheckJWT(c); err != nil {
+			return err
+		} else {
+			uid = ckID
+		}
 	}
 
 	ws, err := upgrader.Upgrade(c.Response(), c.Request(), nil)

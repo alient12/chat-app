@@ -14,6 +14,7 @@ type UserCreate struct {
 	Lastname  string `json:"lastname,omitempty" validate:"required,alpha"`
 	Image     string `json:"image,omitempty"`
 	Bio       string `json:"bio,omitempty" validate:"max=100"`
+	Token     string `json:"token,omitempty"`
 }
 
 func (uc UserCreate) Validate() error {

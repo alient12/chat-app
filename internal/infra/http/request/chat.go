@@ -8,6 +8,7 @@ import (
 
 type ChatCreate struct {
 	People []uint64 `json:"people,omitempty" validate:"required"`
+	Token  string   `json:"token,omitempty"`
 }
 
 func (chc ChatCreate) Validate() error {

@@ -116,14 +116,21 @@ func (u *User) Create(c echo.Context) error {
 	user_count++
 	mu.Unlock()
 
-	if err := GenJWT(c, id, req.Username); err != nil {
+	// cookie based
+	// if err := GenJWT(c, id, req.Username); err != nil {
+	// 	return echo.ErrInternalServerError
+	// }
+
+	token, err := GenJWTLocalStorage(id, req.Username)
+	if err != nil {
 		return echo.ErrInternalServerError
 	}
 
 	id_username := struct {
 		ID       uint64
 		Username string
-	}{ID: id, Username: req.Username}
+		Token    string
+	}{ID: id, Username: req.Username, Token: token}
 
 	return c.JSON(http.StatusOK, id_username)
 }
@@ -191,11 +198,27 @@ func (u *User) Delete(c echo.Context) error {
 		return echo.ErrBadRequest
 	}
 
-	if ckID, _, err := CheckJWT(c); err != nil {
-		return err
+	// check auth
+	req := struct {
+		Token string `json:"token,omitempty"`
+	}{}
+	if err := c.Bind(&req); err == nil {
+		// check auth by headers
+		if ckID, _, err := CheckJWTLocalStorage(req.Token); err != nil {
+			return err
+		} else {
+			if ckID != *idPtr {
+				return echo.ErrUnauthorized
+			}
+		}
 	} else {
-		if ckID != *idPtr {
-			return echo.ErrForbidden
+		// check auth by cookies
+		if ckID, _, err := CheckJWT(c); err != nil {
+			return err
+		} else {
+			if ckID != *idPtr {
+				return echo.ErrUnauthorized
+			}
 		}
 	}
 
@@ -240,11 +263,23 @@ func (u *User) Update(c echo.Context) error {
 	}
 	user := users[0]
 
-	if ckID, _, err := CheckJWT(c); err != nil {
-		return err
+	if req.Token != "" {
+		// check auth by headers
+		if ckID, _, err := CheckJWTLocalStorage(req.Token); err != nil {
+			return err
+		} else {
+			if ckID != *idPtr {
+				return echo.ErrUnauthorized
+			}
+		}
 	} else {
-		if ckID != *idPtr {
-			return echo.ErrForbidden
+		// check auth by cookies
+		if ckID, _, err := CheckJWT(c); err != nil {
+			return err
+		} else {
+			if ckID != *idPtr {
+				return echo.ErrUnauthorized
+			}
 		}
 	}
 
@@ -321,11 +356,11 @@ func (u *User) Update(c echo.Context) error {
 		return err
 	}
 
-	if err := RefJWT(c); err != nil {
-		if !errors.Is(err, echo.ErrTooEarly) {
-			return err
-		}
-	}
+	// if err := RefJWT(c); err != nil {
+	// 	if !errors.Is(err, echo.ErrTooEarly) {
+	// 		return err
+	// 	}
+	// }
 
 	return c.JSON(http.StatusOK, *idPtr)
 }
@@ -342,6 +377,7 @@ func (u *User) Login(c echo.Context) error {
 		return echo.ErrBadRequest
 	}
 
+	// check if user is loged in by cookie
 	if _, ckUn, err := CheckJWT(c); err != nil {
 		if !errors.Is(err, echo.ErrUnauthorized) {
 			return err
@@ -372,14 +408,20 @@ func (u *User) Login(c echo.Context) error {
 		return echo.ErrUnauthorized
 	}
 
-	if err := GenJWT(c, user.ID, user.Username); err != nil {
+	// cookie based
+	// if err := GenJWT(c, user.ID, user.Username); err != nil {
+	// 	return echo.ErrInternalServerError
+	// }
+	token, err := GenJWTLocalStorage(user.ID, user.Username)
+	if err != nil {
 		return echo.ErrInternalServerError
 	}
 
 	id_username := struct {
 		ID       uint64
 		Username string
-	}{ID: user.ID, Username: user.Username}
+		Token    string
+	}{ID: user.ID, Username: user.Username, Token: token}
 
 	return c.JSON(http.StatusOK, id_username)
 }

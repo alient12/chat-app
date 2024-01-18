@@ -49,10 +49,21 @@ func (f *File) Create(c echo.Context) error {
 	var dir string
 
 	// check auth
-	if ckID, _, err := CheckJWT(c); err != nil {
-		return err
+	token := c.QueryParam("token")
+	if token != "" {
+		// check auth by headers
+		if ckID, _, err := CheckJWTLocalStorage(token); err != nil {
+			return err
+		} else {
+			idPtr = &ckID
+		}
 	} else {
-		idPtr = &ckID
+		// check auth by cookies
+		if ckID, _, err := CheckJWT(c); err != nil {
+			return err
+		} else {
+			idPtr = &ckID
+		}
 	}
 
 	// check if user is uploading file for a chat
@@ -165,10 +176,21 @@ func (f *File) Get(c echo.Context) error {
 	}
 
 	// check auth
-	if ckID, _, err := CheckJWT(c); err != nil {
-		return err
+	token := c.QueryParam("token")
+	if token != "" {
+		// check auth by headers
+		if ckID, _, err := CheckJWTLocalStorage(token); err != nil {
+			return err
+		} else {
+			idPtr = &ckID
+		}
 	} else {
-		idPtr = &ckID
+		// check auth by cookies
+		if ckID, _, err := CheckJWT(c); err != nil {
+			return err
+		} else {
+			idPtr = &ckID
+		}
 	}
 
 	file := f.repo.Get(c.Request().Context(), filerepo.GetCommand{
@@ -222,10 +244,21 @@ func (f *File) Delete(c echo.Context) error {
 	}
 
 	// check auth
-	if ckID, _, err := CheckJWT(c); err != nil {
-		return err
+	token := c.QueryParam("token")
+	if token != "" {
+		// check auth by headers
+		if ckID, _, err := CheckJWTLocalStorage(token); err != nil {
+			return err
+		} else {
+			idPtr = &ckID
+		}
 	} else {
-		idPtr = &ckID
+		// check auth by cookies
+		if ckID, _, err := CheckJWT(c); err != nil {
+			return err
+		} else {
+			idPtr = &ckID
+		}
 	}
 
 	// check if user has access to the chat to delete the file
@@ -286,10 +319,21 @@ func (f *File) DeleteProfileContent(c echo.Context) error {
 	}
 
 	// check auth
-	if ckID, _, err := CheckJWT(c); err != nil {
-		return err
+	token := c.QueryParam("token")
+	if token != "" {
+		// check auth by headers
+		if ckID, _, err := CheckJWTLocalStorage(token); err != nil {
+			return err
+		} else {
+			idPtr = &ckID
+		}
 	} else {
-		idPtr = &ckID
+		// check auth by cookies
+		if ckID, _, err := CheckJWT(c); err != nil {
+			return err
+		} else {
+			idPtr = &ckID
+		}
 	}
 
 	file := f.repo.Get(c.Request().Context(), filerepo.GetCommand{

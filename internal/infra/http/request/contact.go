@@ -7,8 +7,9 @@ import (
 )
 
 type ContactCreate struct {
-	ID   uint64 `json:"id,omitempty" validate:"required"`
-	Name string `json:"name,omitempty" validate:"required"`
+	ID    uint64 `json:"id,omitempty" validate:"required"`
+	Name  string `json:"name,omitempty" validate:"required"`
+	Token string `json:"token,omitempty"`
 }
 
 func (cc ContactCreate) Validate() error {

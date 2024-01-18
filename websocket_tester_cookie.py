@@ -3,8 +3,6 @@ import json
 import asyncio
 import websockets
 from essential_generators import DocumentGenerator
-import signal
-import sys
 
 base_url = "http://localhost:8000/api"  # replace with your server URL
 
@@ -25,7 +23,7 @@ data = {"username":user1,"password":"password1", "phone":gen.phone().replace("-"
 print(data)
 response = requests.post(url, headers=headers, data=json.dumps(data))
 print(response.text)
-token1 = json.loads(response.text)["Token"]
+cookies1 = response.cookies
 id1 = int(json.loads(response.text)["ID"])
 
 # Create the second user
@@ -36,32 +34,15 @@ data = {"username":user2,"password":"password2", "phone":gen.phone().replace("-"
 print(data)
 response = requests.post(url, headers=headers, data=json.dumps(data))
 print(response.text)
-token2 = json.loads(response.text)["Token"]
+cookies2 = response.cookies
 id2 = int(json.loads(response.text)["ID"])
 
 # Create a chat between the two users
 url = base_url+"/chats"
-data = {"people":[id1, id2], "token":token1}  # replace with the actual user IDs
-response = requests.post(url, headers=headers, data=json.dumps(data))
+data = {"people":[id1, id2]}  # replace with the actual user IDs
+response = requests.post(url, headers=headers, data=json.dumps(data), cookies=cookies1)
 print(response.text)
 chat_id = int(response.text)
-
-def signal_handler(sig, frame):
-    print("DELETE request to user1 with auth")
-    url = base_url+f"/users/{id1}"
-    headers = {'Content-Type': 'application/json'}
-    data = {"token":token1}
-    response = requests.delete(url, headers=headers, data=json.dumps(data))
-    print(response.text)
-    
-    print("DELETE request to user2 with auth")
-    url = base_url+f"/users/{id2}"
-    data = {"token":token2}
-    response = requests.delete(url, headers=headers, data=json.dumps(data))
-    print(response.text)
-    sys.exit(0)
-
-signal.signal(signal.SIGINT, signal_handler)
 
 # WebSocket URL
 ws_url = "ws://localhost:8000/api/message"  # replace with your WebSocket URL
@@ -87,8 +68,8 @@ async def receive_message(user1, ws):
         print(f"{user1} received message '{response_dict['Content']}' from {response_dict['Sender']}")
         print()
 
-async def handle_connection(user1, user2, token, delay, initial_delay=0):
-    async with websockets.connect(ws_url+"?token="+token) as ws:
+async def handle_connection(user1, user2, cookies, delay, initial_delay=0):
+    async with websockets.connect(ws_url, extra_headers={"Cookie": getCookies(cookies, "localhost.local")}) as ws:
         print(f"I'm {user1} and got connected to websocket.")
         # Run the send_message and receive_message functions concurrently
         await asyncio.gather(
@@ -96,7 +77,7 @@ async def handle_connection(user1, user2, token, delay, initial_delay=0):
             receive_message(user1, ws)
         )
 
-async def get_chat(chat_id, token, delay, initial_delay=0):
+async def get_chat(chat_id, cookies, delay, initial_delay=0):
     await asyncio.sleep(initial_delay)
 
     while True:
@@ -106,14 +87,13 @@ async def get_chat(chat_id, token, delay, initial_delay=0):
         print(f"GET request to /chats/{chat_id}")
         
         url = base_url+f"/chats/{chat_id}"
-        data = {"token":token}
-        response = requests.get(url, headers=headers, data=json.dumps(data))
+        response = requests.get(url, data=json.dumps(data), cookies=cookies)
                 
         print(response.text)
 
 # Run the handle_connection function for both users concurrently with different delays
 asyncio.get_event_loop().run_until_complete(asyncio.gather(
-    handle_connection(id1, id2, token1, 2, 1),
-    handle_connection(id2, id1, token2, 2),
-    get_chat(chat_id, token1, 5)
+    handle_connection(id1, id2, cookies1, 2, 1),
+    handle_connection(id2, id1, cookies2, 2),
+    get_chat(chat_id, cookies1, 5)
 ))

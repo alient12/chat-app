@@ -23,7 +23,7 @@ data = {"username":user1,"password":"password1", "phone":gen.phone().replace("-"
 print(data)
 response = requests.post(url, headers=headers, data=json.dumps(data))
 print(response.text)
-token1 = json.loads(response.text)["Token"]
+cookies1 = response.cookies
 id1 = int(json.loads(response.text)["ID"])
 
 # Create the second user
@@ -34,13 +34,13 @@ data = {"username":user2,"password":"password2", "phone":gen.phone().replace("-"
 print(data)
 response = requests.post(url, headers=headers, data=json.dumps(data))
 print(response.text)
-token2 = json.loads(response.text)["Token"]
+cookies2 = response.cookies
 id2 = int(json.loads(response.text)["ID"])
 
 # Create a chat between the two users
 url = base_url+"/chats"
-data = {"people":[id1, id2], "token":token1}  # replace with the actual user IDs
-response = requests.post(url, headers=headers, data=json.dumps(data))
+data = {"people":[id1, id2]}  # replace with the actual user IDs
+response = requests.post(url, headers=headers, data=json.dumps(data), cookies=cookies1)
 print(response.text)
 chat_id = int(response.text)
 
@@ -50,18 +50,5 @@ file_path = 'Dance.mp4'  # replace with your file path
 
 with open(file_path, 'rb') as f:
     files = {'file': f}
-    response = requests.post(url+"?token="+token1, files=files)
+    response = requests.post(url, files=files, cookies=cookies1)
     print(response.text)
-
-print("DELETE request to user1 with auth")
-url = base_url+f"/users/{id1}"
-headers = {'Content-Type': 'application/json'}
-data = {"token":token1}
-response = requests.delete(url, headers=headers, data=json.dumps(data))
-print(response.text)
-
-print("DELETE request to user2 with auth")
-url = base_url+f"/users/{id2}"
-data = {"token":token2}
-response = requests.delete(url, headers=headers, data=json.dumps(data))
-print(response.text)

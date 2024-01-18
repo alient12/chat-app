@@ -60,12 +60,24 @@ func (ch *Chat) Create(c echo.Context) error {
 
 	var people []uint64 = req.People
 
-	// check if user is logged in
-	if ckID, _, err := CheckJWT(c); err != nil {
-		return err
+	// check auth
+	if req.Token != "" {
+		// check auth by headers
+		if ckID, _, err := CheckJWTLocalStorage(req.Token); err != nil {
+			return err
+		} else {
+			if !util.InSlice(people, ckID) {
+				people = append(people, ckID)
+			}
+		}
 	} else {
-		if !util.InSlice(people, ckID) {
-			people = append(people, ckID)
+		// check auth by cookies
+		if ckID, _, err := CheckJWT(c); err != nil {
+			return err
+		} else {
+			if !util.InSlice(people, ckID) {
+				people = append(people, ckID)
+			}
 		}
 	}
 
@@ -125,10 +137,23 @@ func (ch *Chat) GetByID(c echo.Context) error {
 	}
 
 	// check auth
-	if ckID, _, err := CheckJWT(c); err != nil {
-		return err
+	req := struct {
+		Token string `json:"token,omitempty"`
+	}{}
+	if err := c.Bind(&req); err == nil {
+		// check auth by headers
+		if ckID, _, err := CheckJWTLocalStorage(req.Token); err != nil {
+			return err
+		} else {
+			idPtr = &ckID
+		}
 	} else {
-		idPtr = &ckID
+		// check auth by cookies
+		if ckID, _, err := CheckJWT(c); err != nil {
+			return err
+		} else {
+			idPtr = &ckID
+		}
 	}
 
 	chat := ch.repo.Get(c.Request().Context(), chatrepo.GetCommand{
@@ -138,7 +163,7 @@ func (ch *Chat) GetByID(c echo.Context) error {
 
 	// check if user has access to the chat
 	if !util.InSlice(chat.People, *idPtr) {
-		return echo.ErrForbidden
+		return echo.ErrUnauthorized
 	}
 
 	return c.JSON(http.StatusOK, chat)
@@ -148,10 +173,23 @@ func (ch *Chat) Get(c echo.Context) error {
 	var idPtr *uint64
 
 	// check auth
-	if ckID, _, err := CheckJWT(c); err != nil {
-		return err
+	req := struct {
+		Token string `json:"token,omitempty"`
+	}{}
+	if err := c.Bind(&req); err == nil {
+		// check auth by headers
+		if ckID, _, err := CheckJWTLocalStorage(req.Token); err != nil {
+			return err
+		} else {
+			idPtr = &ckID
+		}
 	} else {
-		idPtr = &ckID
+		// check auth by cookies
+		if ckID, _, err := CheckJWT(c); err != nil {
+			return err
+		} else {
+			idPtr = &ckID
+		}
 	}
 
 	people := make([]uint64, 0)
@@ -174,10 +212,23 @@ func (ch *Chat) Delete(c echo.Context) error {
 	}
 
 	// check auth
-	if ckID, _, err := CheckJWT(c); err != nil {
-		return err
+	req := struct {
+		Token string `json:"token,omitempty"`
+	}{}
+	if err := c.Bind(&req); err == nil {
+		// check auth by headers
+		if ckID, _, err := CheckJWTLocalStorage(req.Token); err != nil {
+			return err
+		} else {
+			idPtr = &ckID
+		}
 	} else {
-		idPtr = &ckID
+		// check auth by cookies
+		if ckID, _, err := CheckJWT(c); err != nil {
+			return err
+		} else {
+			idPtr = &ckID
+		}
 	}
 
 	chat := ch.repo.Get(c.Request().Context(), chatrepo.GetCommand{
@@ -187,7 +238,7 @@ func (ch *Chat) Delete(c echo.Context) error {
 
 	// check if user has access to the chat
 	if !util.InSlice(chat.People, *idPtr) {
-		return echo.ErrForbidden
+		return echo.ErrUnauthorized
 	}
 
 	if err := ch.repo.Delete(c.Request().Context(), *chIDPtr); err != nil {

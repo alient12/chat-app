@@ -12,6 +12,7 @@ type MessageCreate struct {
 	Receiver    uint64                   `json:"receiver,omitempty"`
 	Content     string                   `json:"content,omitempty" validate:"required,max=300"`
 	ContentType model.MessageContentType `json:"contenttype,omitempty"`
+	Token       string                   `json:"token,omitempty"`
 }
 
 func (msc MessageCreate) Validate() error {

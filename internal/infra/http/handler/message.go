@@ -67,10 +67,23 @@ func (ms *Message) Get(c echo.Context) error {
 	}
 
 	// check auth
-	if ckID, _, err := CheckJWT(c); err != nil {
-		return err
+	req := struct {
+		Token string `json:"token,omitempty"`
+	}{}
+	if err := c.Bind(&req); err == nil {
+		// check auth by headers
+		if ckID, _, err := CheckJWTLocalStorage(req.Token); err != nil {
+			return err
+		} else {
+			idPtr = &ckID
+		}
 	} else {
-		idPtr = &ckID
+		// check auth by cookies
+		if ckID, _, err := CheckJWT(c); err != nil {
+			return err
+		} else {
+			idPtr = &ckID
+		}
 	}
 
 	chat := ms.chrepo.Get(c.Request().Context(), chatrepo.GetCommand{
@@ -118,11 +131,26 @@ func (ms *Message) Delete(c echo.Context) error {
 	}
 
 	// check auth
-	if ckID, _, err := CheckJWT(c); err != nil {
-		return err
+	req := struct {
+		Token string `json:"token,omitempty"`
+	}{}
+	if err := c.Bind(&req); err == nil {
+		// check auth by headers
+		if ckID, _, err := CheckJWTLocalStorage(req.Token); err != nil {
+			return err
+		} else {
+			if ckID != *idPtr {
+				return echo.ErrUnauthorized
+			}
+		}
 	} else {
-		if ckID != *idPtr {
-			return echo.ErrUnauthorized
+		// check auth by cookies
+		if ckID, _, err := CheckJWT(c); err != nil {
+			return err
+		} else {
+			if ckID != *idPtr {
+				return echo.ErrUnauthorized
+			}
 		}
 	}
 
