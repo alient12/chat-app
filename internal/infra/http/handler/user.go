@@ -137,7 +137,7 @@ func (u *User) Create(c echo.Context) error {
 
 func (u *User) Get(c echo.Context) error {
 	var idPtr *uint64
-	if id, err := strconv.ParseUint(c.QueryParam("id"), 10, 64); err == nil {
+	if id, err := strconv.ParseUint(c.Param("id"), 10, 64); err == nil {
 		idPtr = &id
 	}
 
@@ -164,7 +164,7 @@ func (u *User) Get(c echo.Context) error {
 		users[i].Password = ""
 	}
 
-	return c.JSON(http.StatusOK, users)
+	return c.JSON(http.StatusOK, users[0])
 }
 
 func (u *User) GetByKeyword(c echo.Context) error {

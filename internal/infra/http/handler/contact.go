@@ -97,12 +97,10 @@ func (cc *Contact) Get(c echo.Context) error {
 	}
 
 	// check auth
-	req := struct {
-		Token string `json:"token,omitempty"`
-	}{}
-	if err := c.Bind(&req); err == nil {
-		// check auth by headers
-		if ckID, _, err := CheckJWTLocalStorage(req.Token); err != nil {
+	token := c.QueryParam("token")
+	if token != "" {
+		// check auth by query params
+		if ckID, _, err := CheckJWTLocalStorage(token); err != nil {
 			return err
 		} else {
 			if ckID != *idPtr {

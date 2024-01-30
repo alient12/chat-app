@@ -24,7 +24,7 @@ print(response.text)
 print("PATCH request to /users/id without auth")
 url = base_url+f"/users/{id}"
 headers = {'Content-Type': 'application/json'}
-data = {"username":"user1","password":"password1", "phone":"0123456789", "firstname": "Ali", "lastname": "Entwdwd", "token":token}
+data = {"username":"user1","password":"password1", "phone":"0123456789", "firstname": "Ali", "lastname": "Entwdwd"}
 response = requests.patch(url, headers=headers, data=json.dumps(data))
 print(response.text)
 
@@ -78,8 +78,8 @@ print(response.text)
 
 print("GET request to /chats")
 url = base_url+f"/chats"
-data = {"token":token}
-response = requests.get(url, headers=headers, data=json.dumps(data))
+params = {"token":token}
+response = requests.get(url, params=params)
 print(response.text)
 
 print("POST request to /chats with user2")
@@ -91,8 +91,8 @@ print(response.text)
 
 print("GET request to /chats")
 url = base_url+f"/chats"
-data = {"token":token2}
-response = requests.get(url, headers=headers, data=json.dumps(data))
+params = {"token":token2}
+response = requests.get(url, params=params)
 print(response.text)
 
 ########################### Contact tests ###########################
@@ -106,14 +106,14 @@ print(response.text)
 
 print("GET request to get user1 contacts")
 url = base_url+f"/users/{id}/contacts"
-data = {"token":token}
-response = requests.get(url, headers=headers, data=json.dumps(data))
+params = {"token":token}
+response = requests.get(url, params=params)
 print(response.text)
 
 print("GET request to get user1 contacts with user2")
 url = base_url+f"/users/{id}/contacts"
-data = {"token":token2}
-response = requests.get(url, headers=headers, data=json.dumps(data))
+params = {"token":token2}
+response = requests.get(url, params=params)
 print(response.text)
 
 print("DELETE request contact user1")
@@ -124,8 +124,8 @@ print(response.text)
 
 print("GET request to get user1 contacts")
 url = base_url+f"/users/{id}/contacts"
-data = {"token":token}
-response = requests.get(url, headers=headers, data=json.dumps(data))
+params = {"token":token}
+response = requests.get(url, params=params)
 print(response.text)
 
 

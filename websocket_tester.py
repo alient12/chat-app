@@ -106,8 +106,8 @@ async def get_chat(chat_id, token, delay, initial_delay=0):
         print(f"GET request to /chats/{chat_id}")
         
         url = base_url+f"/chats/{chat_id}"
-        data = {"token":token}
-        response = requests.get(url, headers=headers, data=json.dumps(data))
+        params = {"token":token}
+        response = requests.get(url, params=params)
                 
         print(response.text)
 
