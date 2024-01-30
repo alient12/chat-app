@@ -73,3 +73,12 @@ func (r *Repository) Delete(ctx context.Context, id uint64) error {
 	}
 	return nil
 }
+
+func (r *Repository) Update(_ context.Context, m model.Chat) error {
+	collection := r.db.Collection("chats")
+	_, err := collection.UpdateOne(context.TODO(), bson.D{{Key: "id", Value: m.ID}}, bson.D{{Key: "$set", Value: m}})
+	if err != nil {
+		return echo.ErrNotFound
+	}
+	return nil
+}

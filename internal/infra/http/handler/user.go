@@ -139,22 +139,14 @@ func (u *User) Get(c echo.Context) error {
 	var idPtr *uint64
 	if id, err := strconv.ParseUint(c.Param("id"), 10, 64); err == nil {
 		idPtr = &id
-	}
-
-	var unPtr *string
-	if un := c.QueryParam("username"); un != "" {
-		unPtr = &un
-	}
-
-	var phPtr *string
-	if ph := c.QueryParam("phone"); ph != "" {
-		phPtr = &ph
+	} else {
+		return echo.ErrBadRequest
 	}
 
 	users := u.repo.Get(c.Request().Context(), userrepo.GetCommand{
 		ID:       idPtr,
-		Username: unPtr,
-		Phone:    phPtr,
+		Username: nil,
+		Phone:    nil,
 	})
 	if len(users) == 0 {
 		return echo.ErrNotFound
@@ -168,15 +160,19 @@ func (u *User) Get(c echo.Context) error {
 }
 
 func (u *User) GetByKeyword(c echo.Context) error {
-	var keyPtr *string
+	var keyPtr, phonePtr *string
 	if key := c.QueryParam("keyword"); key != "" {
 		keyPtr = &key
+	}
+
+	if key := c.QueryParam("phone"); key != "" {
+		phonePtr = &key
 	}
 
 	users := u.repo.Get(c.Request().Context(), userrepo.GetCommand{
 		ID:       nil,
 		Username: nil,
-		Phone:    nil,
+		Phone:    phonePtr,
 		Keyword:  keyPtr,
 	})
 	if len(users) == 0 {

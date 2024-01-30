@@ -3,13 +3,13 @@ package model
 import "time"
 
 type Message struct {
-	ID          uint64
-	ChatID      uint64
-	Sender      uint64
-	Receiver    uint64
-	Content     string
-	ContentType MessageContentType
-	CreatedAt   time.Time
+	ID          uint64             `json:"id,omitempty"`
+	ChatID      uint64             `json:"chatid,omitempty"`
+	Sender      uint64             `json:"sender,omitempty"`
+	Receiver    uint64             `json:"receiver,omitempty"`
+	Content     string             `json:"content,omitempty"`
+	ContentType MessageContentType `json:"contenttype,omitempty"`
+	CreatedAt   time.Time          `json:"createdat,omitempty"`
 }
 
 type MessageContentType int

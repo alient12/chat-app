@@ -55,6 +55,10 @@ func (ms *Message) Create(c echo.Context, req request.MessageCreate, uid uint64)
 		return nil, err
 	}
 
+	chat := ms.chrepo.Get(c.Request().Context(), chatrepo.GetCommand{ID: &req.ChatID})[0]
+	chat.UpdatedAt = time.Now()
+	ms.chrepo.Update(c.Request().Context(), chat)
+
 	return &msg, nil
 }
 

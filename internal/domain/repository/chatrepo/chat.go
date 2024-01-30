@@ -19,4 +19,5 @@ type Repository interface {
 	Add(ctx context.Context, m model.Chat) error
 	Delete(ctx context.Context, id uint64) error
 	Get(ctx context.Context, cmd GetCommand) []model.Chat
+	Update(ctx context.Context, m model.Chat) error
 }

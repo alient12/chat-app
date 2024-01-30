@@ -81,3 +81,17 @@ func (r *Repository) Delete(ctx context.Context, id uint64) error {
 
 	return nil
 }
+
+func (r *Repository) Update(_ context.Context, m model.Chat) error {
+	r.lock.RLock()
+	if _, ok := r.chats[m.ID]; !ok {
+		return echo.ErrNotFound
+	}
+	r.lock.RUnlock()
+
+	r.lock.Lock()
+	r.chats[m.ID] = m
+	r.lock.Unlock()
+
+	return nil
+}

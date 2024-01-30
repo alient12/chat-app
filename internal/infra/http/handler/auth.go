@@ -44,7 +44,7 @@ func CheckJWT(c echo.Context) (uint64, string, error) {
 
 func GenJWT(c echo.Context, id uint64, un string) error {
 	jwtKey := []byte(os.Getenv("JWT_SECRET"))
-	expirationTime := time.Now().Add(5 * time.Minute)
+	expirationTime := time.Now().AddDate(0, 1, 0)
 	claims := &Claims{
 		ID:       id,
 		Username: un,
@@ -100,7 +100,7 @@ func RefJWT(c echo.Context) error {
 	}
 
 	// Now, create a new token for the current use, with a renewed expiration time
-	expirationTime := time.Now().Add(5 * time.Minute)
+	expirationTime := time.Now().AddDate(0, 1, 0)
 	claims.ExpiresAt = jwt.NewNumericDate(expirationTime)
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString(jwtKey)
@@ -137,7 +137,10 @@ func CheckJWTLocalStorage(token string) (uint64, string, error) {
 		if err == jwt.ErrSignatureInvalid {
 			return 0, "", echo.ErrUnauthorized
 		}
-		return 0, "", echo.ErrBadRequest
+		if err == jwt.ErrTokenExpired {
+			return 0, "", echo.ErrUnauthorized
+		}
+		return 0, "", echo.ErrUnauthorized
 	}
 	if !tkn.Valid {
 		return 0, "", echo.ErrUnauthorized
@@ -147,7 +150,7 @@ func CheckJWTLocalStorage(token string) (uint64, string, error) {
 
 func GenJWTLocalStorage(id uint64, un string) (string, error) {
 	jwtKey := []byte(os.Getenv("JWT_SECRET"))
-	expirationTime := time.Now().Add(5 * time.Minute)
+	expirationTime := time.Now().AddDate(0, 1, 0)
 	claims := &Claims{
 		ID:       id,
 		Username: un,
@@ -187,7 +190,7 @@ func RefJWTLocalStorage(tknStr string) (string, error) {
 	}
 
 	// Now, create a new token for the current use, with a renewed expiration time
-	expirationTime := time.Now().Add(5 * time.Minute)
+	expirationTime := time.Now().AddDate(0, 1, 0)
 	claims.ExpiresAt = jwt.NewNumericDate(expirationTime)
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString(jwtKey)

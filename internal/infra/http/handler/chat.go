@@ -112,6 +112,7 @@ func (ch *Chat) Create(c echo.Context) error {
 		ID:        id,
 		People:    people,
 		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
 	}); err != nil {
 		if errors.Is(err, chatrepo.ErrChatIDDuplicate) {
 			return echo.ErrInternalServerError
