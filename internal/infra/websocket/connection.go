@@ -48,6 +48,9 @@ func (conn *Connection) readPump(c echo.Context, wsc *WebSocketConnection) error
 			return err
 		}
 
+		// send confirmation to the sender
+		conn.Send <- msgPtr
+
 		// Send the message to the receiver.
 		wsc.lock.RLock()
 		receiverConn, ok := wsc.connections[msgPtr.Receiver]
