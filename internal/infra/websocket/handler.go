@@ -4,6 +4,7 @@ import (
 	"chatapp/internal/domain/model"
 	"chatapp/internal/infra/http/handler"
 	"log"
+	"net/http"
 	"sync"
 
 	"github.com/gorilla/websocket"
@@ -13,6 +14,9 @@ import (
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
+	CheckOrigin: func(r *http.Request) bool {
+		return r.Header.Get("Origin") == "http://localhost:3000"
+	},
 }
 
 type WebSocketConnection struct {

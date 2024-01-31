@@ -84,7 +84,7 @@ async def receive_message(user1, ws):
         # Receive a message
         response = await ws.recv()
         response_dict = json.loads(response)
-        print(f"{user1} received message '{response_dict['Content']}' from {response_dict['Sender']}")
+        print(f"{user1} received message '{response_dict['content']}' from {response_dict['sender']}")
         print()
 
 async def handle_connection(user1, user2, token, delay, initial_delay=0):
