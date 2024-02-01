@@ -47,7 +47,7 @@ func (r *Repository) Get(_ context.Context, cmd chatrepo.GetCommand) []model.Cha
 		filter = append(filter, bson.E{Key: "id", Value: *cmd.ID})
 	}
 	if cmd.UserID != nil {
-		filter = append(filter, bson.E{Key: "people", Value: bson.D{{Key: "$in", Value: *cmd.UserID}}})
+		filter = append(filter, bson.E{Key: "people", Value: bson.D{{Key: "$all", Value: *cmd.UserID}}})
 	}
 
 	cur, err := collection.Find(context.TODO(), filter)
