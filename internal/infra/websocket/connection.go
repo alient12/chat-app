@@ -14,7 +14,7 @@ import (
 type Connection struct {
 	WS       *websocket.Conn
 	Send     chan *model.Message
-	IsOnline chan bool
+	IsOnline bool
 	UserID   uint64
 }
 
@@ -67,6 +67,7 @@ func (conn *Connection) writePump(c echo.Context, wsc *WebSocketConnection) {
 	defer func() {
 		ticker.Stop()
 		conn.WS.Close()
+		conn.IsOnline = false
 	}()
 
 	for {
