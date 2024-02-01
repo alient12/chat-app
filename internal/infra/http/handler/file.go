@@ -175,24 +175,6 @@ func (f *File) Get(c echo.Context) error {
 		return echo.ErrBadRequest
 	}
 
-	// check auth
-	token := c.QueryParam("token")
-	if token != "" {
-		// check auth by headers
-		if ckID, _, err := CheckJWTLocalStorage(token); err != nil {
-			return err
-		} else {
-			idPtr = &ckID
-		}
-	} else {
-		// check auth by cookies
-		if ckID, _, err := CheckJWT(c); err != nil {
-			return err
-		} else {
-			idPtr = &ckID
-		}
-	}
-
 	file := f.repo.Get(c.Request().Context(), filerepo.GetCommand{
 		ID:          fileIDPtr,
 		UserID:      nil,
@@ -206,6 +188,24 @@ func (f *File) Get(c echo.Context) error {
 	if file.IsProfileContent {
 		alowedToDownlaod = true
 	} else {
+		// check auth
+		token := c.QueryParam("token")
+		if token != "" {
+			// check auth by headers
+			if ckID, _, err := CheckJWTLocalStorage(token); err != nil {
+				return err
+			} else {
+				idPtr = &ckID
+			}
+		} else {
+			// check auth by cookies
+			if ckID, _, err := CheckJWT(c); err != nil {
+				return err
+			} else {
+				idPtr = &ckID
+			}
+		}
+
 		// get list of chats that have access to file
 		for _, chatid := range file.ChatIDs {
 			chat := f.chrepo.Get(c.Request().Context(), chatrepo.GetCommand{
