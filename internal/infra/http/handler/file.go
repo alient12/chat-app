@@ -68,7 +68,7 @@ func (f *File) Create(c echo.Context) error {
 
 	// check if user is uploading file for a chat
 	chIDParam := c.Param("chatid")
-	if chIDParam != "" {
+	if chIDParam != "profile" {
 		id, err := strconv.ParseUint(chIDParam, 10, 64)
 		if err != nil {
 			return echo.ErrBadRequest
